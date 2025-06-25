@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import type { Transaction } from '@/types';
 
@@ -25,16 +25,20 @@ export const useAccount = () => {
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   const [balance, setBalance] = useState(25000);
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: crypto.randomUUID(),
-      type: 'Deposit',
-      amount: 25000,
-      date: new Date().toISOString(),
-      description: 'Initial account balance',
-    }
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const minBalance = 10000;
+
+  useEffect(() => {
+    setTransactions([
+      {
+        id: crypto.randomUUID(),
+        type: 'Deposit',
+        amount: 25000,
+        date: new Date().toISOString(),
+        description: 'Initial account balance',
+      }
+    ]);
+  }, []);
 
   const addTransaction = (transaction: Omit<Transaction, 'id' | 'date'>) => {
     const newTransaction: Transaction = {
