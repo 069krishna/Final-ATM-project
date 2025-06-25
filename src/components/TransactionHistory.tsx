@@ -1,0 +1,88 @@
+'use client';
+
+import { useAccount } from '@/context/AccountContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft } from 'lucide-react';
+import { format } from 'date-fns';
+
+export default function TransactionHistory() {
+  const { transactions } = useAccount();
+
+  const getTransactionIcon = (type: 'Deposit' | 'Withdrawal' | 'Transfer') => {
+    switch (type) {
+      case 'Deposit':
+        return <ArrowDownToLine className="h-4 w-4 text-green-500" />;
+      case 'Withdrawal':
+        return <ArrowUpFromLine className="h-4 w-4 text-red-500" />;
+      case 'Transfer':
+        return <ArrowRightLeft className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
+  const getVariant = (type: string) => {
+    switch (type) {
+        case 'Deposit': return 'default';
+        case 'Withdrawal': return 'destructive';
+        case 'Transfer': return 'secondary';
+        default: return 'outline';
+    }
+  }
+
+  return (
+    <Card className="shadow-lg">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <History className="h-6 w-6" />
+          <CardTitle>Transaction History</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[120px]">Type</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Description</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.length > 0 ? (
+              transactions.map((tx) => (
+                <TableRow key={tx.id}>
+                  <TableCell>
+                    <Badge variant={getVariant(tx.type)} className="capitalize flex items-center gap-2 w-fit">
+                        {getTransactionIcon(tx.type)}
+                        {tx.type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={`text-right font-medium ${tx.type === 'Deposit' ? 'text-green-600' : 'text-red-600'}`}>
+                    {tx.type === 'Deposit' ? '+' : '-'}{' '}
+                    ₹{tx.amount.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell>{format(new Date(tx.date), 'PPp')}</TableCell>
+                  <TableCell>{tx.description}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No transactions yet.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
