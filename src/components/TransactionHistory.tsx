@@ -11,12 +11,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Printer } from 'lucide-react';
+import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Printer, FileDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export default function TransactionHistory() {
   const { transactions } = useAccount();
+  const { toast } = useToast();
 
   const getTransactionIcon = (type: 'Deposit' | 'Withdrawal' | 'Transfer') => {
     switch (type) {
@@ -38,6 +40,48 @@ export default function TransactionHistory() {
     }
   }
 
+  const handleExport = () => {
+    if (transactions.length === 0) {
+      toast({
+        title: 'No Transactions',
+        description: 'There is no history to export.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const headers = ['ID', 'Type', 'Amount (INR)', 'Date', 'Description'];
+    const rows = transactions.map(tx => [
+      tx.id,
+      tx.type,
+      tx.amount,
+      format(new Date(tx.date), 'yyyy-MM-dd HH:mm:ss'),
+      `"${tx.description.replace(/"/g, '""')}"` // Escape double quotes
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', `finsim-transactions-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+        title: "Export Successful",
+        description: "Your transaction history has been downloaded.",
+      });
+  };
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -46,10 +90,16 @@ export default function TransactionHistory() {
                 <History className="h-6 w-6" />
                 <CardTitle>Transaction History</CardTitle>
             </div>
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="no-print">
-                <Printer className="h-4 w-4" />
-                Print
-            </Button>
+            <div className="flex items-center gap-2 no-print">
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                    <FileDown className="h-4 w-4" />
+                    Export
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.print()}>
+                    <Printer className="h-4 w-4" />
+                    Print
+                </Button>
+            </div>
         </div>
       </CardHeader>
       <CardContent>
