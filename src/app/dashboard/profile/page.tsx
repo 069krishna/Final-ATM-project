@@ -1,17 +1,43 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
+import { useState } from "react";
 
 export default function ProfilePage() {
-  const user = {
+  const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState({
     name: 'Satoshi Nakamoto',
     email: 'satoshi@gmx.com',
     accountNumber: 'XXXX-XXXX-XX42',
     phone: '+91 98765 43210',
     initials: 'SN',
+  });
+  const [tempUser, setTempUser] = useState(user);
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Save changes
+      setUser(tempUser);
+    } else {
+      // Start editing
+      setTempUser(user);
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleCancel = () => {
+    setTempUser(user);
+    setIsEditing(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setTempUser(prev => ({ ...prev, [id]: value }));
   };
 
   return (
@@ -39,23 +65,28 @@ export default function ProfilePage() {
                 <div className="grid sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" defaultValue={user.name} readOnly />
+                        <Input id="name" value={tempUser.name} onChange={handleInputChange} readOnly={!isEditing} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" defaultValue={user.email} readOnly />
+                        <Input id="email" value={tempUser.email} readOnly />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="accountNumber">Account Number</Label>
-                        <Input id="accountNumber" defaultValue={user.accountNumber} readOnly />
+                        <Input id="accountNumber" value={tempUser.accountNumber} readOnly />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" defaultValue={user.phone} readOnly />
+                        <Input id="phone" value={tempUser.phone} onChange={handleInputChange} readOnly={!isEditing} />
                     </div>
                 </div>
-                <div className="flex justify-end">
-                    <Button disabled>Edit Profile</Button>
+                <div className="flex justify-end gap-2">
+                    {isEditing && (
+                        <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+                    )}
+                    <Button onClick={handleEditToggle}>
+                        {isEditing ? 'Save Changes' : 'Edit Profile'}
+                    </Button>
                 </div>
             </CardContent>
         </Card>
