@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A simple AI chat flow.
+ * @fileOverview A simple AI chat flow that simulates an FAQ bot.
  */
 
 import { ai } from '@/ai/genkit';
@@ -26,31 +26,38 @@ export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
 // The main exported function that clients will call
 export async function chat(input: ChatInput): Promise<ChatOutput> {
-  return financialChatFlow(input);
+  return faqBotFlow(input);
 }
 
+// A map of keywords to FAQ responses
+const faqs: { [key: string]: string } = {
+    'budget': 'Budgeting is key to financial health! A great place to start is the 50/30/20 rule: 50% of your income for needs, 30% for wants, and 20% for savings and debt repayment. Try tracking your expenses for a month to see where your money is going.',
+    'savings': 'A good savings goal is to have an emergency fund with 3-6 months of living expenses. You can also save for long-term goals like a down payment or retirement. Automating your savings by setting up regular transfers to a separate savings account can be very effective!',
+    'investment': 'Investing can help your money grow. Stocks are shares of ownership in a company, while bonds are like loans you give to a government or company. For beginners, a diversified index fund is often recommended as a good starting point. Remember, all investments carry some risk.',
+    'credit score': 'Your credit score is a number that shows how reliable you are at paying back debts. It\'s important for getting loans, mortgages, and even some jobs. You can improve it by paying your bills on time, keeping your credit card balances low, and not opening too many new accounts at once.',
+    'stocks': 'Stocks represent ownership in a publicly-traded company. When you buy a stock, you\'re buying a small piece of that company. The value of your stock can go up or down based on the company\'s performance and market conditions.',
+    'bonds': 'Bonds are a type of loan made by an investor to a borrower (typically corporate or governmental). The borrower agrees to pay interest on the loan and to repay the principal at a later date. They are generally considered less risky than stocks.',
+};
+
+
 // Define the Genkit flow
-const financialChatFlow = ai.defineFlow(
+const faqBotFlow = ai.defineFlow(
   {
-    name: 'financialChatFlow',
+    name: 'faqBotFlow',
     inputSchema: ChatInputSchema,
     outputSchema: ChatOutputSchema,
   },
-  async ({ history, prompt }) => {
-    // Map the history to the format expected by the generate call
-    const mappedHistory = history.map((msg) => ({
-        role: msg.role,
-        content: [{ text: msg.content }],
-    }));
+  async ({ prompt }) => {
+    const lowerCasePrompt = prompt.toLowerCase();
 
-    // Generate a response using the model
-    const llmResponse = await ai.generate({
-      // Prepend a system prompt to give the AI its persona
-      system: 'You are a helpful and friendly financial assistant. Your name is Fin. You provide clear, concise, and easy-to-understand explanations of financial topics. Do not provide investment advice.',
-      history: mappedHistory,
-      prompt: prompt,
-    });
-
-    return llmResponse.text;
+    // Check if any keyword from our FAQs is in the prompt
+    for (const keyword in faqs) {
+        if (lowerCasePrompt.includes(keyword)) {
+            return faqs[keyword];
+        }
+    }
+    
+    // Default response if no keyword is found
+    return "I am a simple FAQ bot and can answer questions about budgeting, savings, investment, credit score, stocks, and bonds. Please ask me about one of these topics!";
   }
 );
