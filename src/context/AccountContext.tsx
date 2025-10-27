@@ -58,7 +58,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
     setBalance(prev => prev - amount);
-    addTransaction({ type: 'Withdrawal', amount, description: 'Funds withdrawn via ATM' });
+    addTransaction({ type: 'Withdrawal', amount, description: 'Funds withdrawn' });
     toast({
       title: "Success",
       description: `₹${amount.toLocaleString('en-IN')} withdrawn successfully.`,
