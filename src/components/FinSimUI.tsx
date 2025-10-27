@@ -33,7 +33,9 @@ export default function FinSimUI() {
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-8">
               <AccountSummary />
-              <TransactionHistory />
+              <div className="printable">
+                <TransactionHistory />
+              </div>
             </div>
             <div className="lg:col-span-1 space-y-8">
               <InvestmentPlans />

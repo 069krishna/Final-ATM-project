@@ -11,8 +11,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft } from 'lucide-react';
+import { History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Printer } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from './ui/button';
 
 export default function TransactionHistory() {
   const { transactions } = useAccount();
@@ -40,9 +41,15 @@ export default function TransactionHistory() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <History className="h-6 w-6" />
-          <CardTitle>Transaction History</CardTitle>
+        <div className="flex items-center justify-between gap-3">
+            <div className='flex items-center gap-3'>
+                <History className="h-6 w-6" />
+                <CardTitle>Transaction History</CardTitle>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="no-print">
+                <Printer className="h-4 w-4" />
+                Print
+            </Button>
         </div>
       </CardHeader>
       <CardContent>
