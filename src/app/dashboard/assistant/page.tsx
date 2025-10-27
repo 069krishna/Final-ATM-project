@@ -4,21 +4,27 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bot, User, Send } from 'lucide-react';
+import { Bot, User, Send, HelpCircle } from 'lucide-react';
 import { chat, type ChatMessage } from '@/ai/flows/chat';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+const sampleQuestions = [
+    'What is budgeting?',
+    'How can I improve my savings?',
+    'Tell me about investment for beginners.',
+    'How is my credit score calculated?',
+];
 
 export default function AIAssistantPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageContent: string) => {
+    if (!messageContent.trim() || isLoading) return;
 
-    const userMessage: ChatMessage = { role: 'user', content: input };
+    const userMessage: ChatMessage = { role: 'user', content: messageContent };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
@@ -27,7 +33,7 @@ export default function AIAssistantPage() {
     try {
       const response = await chat({
         history: messages,
-        prompt: input,
+        prompt: messageContent,
       });
       const assistantMessage: ChatMessage = { role: 'model', content: response };
       setMessages([...newMessages, assistantMessage]);
@@ -42,6 +48,15 @@ export default function AIAssistantPage() {
       setIsLoading(false);
     }
   };
+  
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const handleSampleQuestionClick = (question: string) => {
+    sendMessage(question);
+  };
 
   return (
     <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
@@ -51,7 +66,7 @@ export default function AIAssistantPage() {
               <Bot className="h-6 w-6" />
               <div>
                   <CardTitle>AI Financial Assistant</CardTitle>
-                  <CardDescription>Ask me anything about finance!</CardDescription>
+                  <CardDescription>Ask me anything about personal finance!</CardDescription>
               </div>
           </div>
         </CardHeader>
@@ -60,7 +75,24 @@ export default function AIAssistantPage() {
                 <div className="space-y-6">
                 {messages.length === 0 && (
                     <div className="text-center text-muted-foreground pt-10">
-                        <p>No messages yet. Start a conversation!</p>
+                        <div className="space-y-4">
+                            <HelpCircle className="h-10 w-10 mx-auto" />
+                            <p className="font-medium">No messages yet. Start a conversation!</p>
+                            <p className="text-sm">You can ask me questions about:</p>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {sampleQuestions.map((q, i) => (
+                                    <Button
+                                        key={i}
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleSampleQuestionClick(q)}
+                                        disabled={isLoading}
+                                    >
+                                        {q}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
                 {messages.map((message, index) => (
@@ -86,13 +118,17 @@ export default function AIAssistantPage() {
                             <AvatarFallback><Bot /></AvatarFallback>
                         </Avatar>
                         <div className="p-3 rounded-lg bg-muted">
-                            <p className="text-sm">Thinking...</p>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 bg-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                <div className="w-2 h-2 bg-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                <div className="w-2 h-2 bg-foreground rounded-full animate-bounce"></div>
+                            </div>
                         </div>
                     </div>
                 )}
                 </div>
             </ScrollArea>
-            <form onSubmit={handleSendMessage} className="flex items-center gap-2 pt-4 border-t">
+            <form onSubmit={handleFormSubmit} className="flex items-center gap-2 pt-4 border-t">
                 <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
