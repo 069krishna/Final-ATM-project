@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   SidebarHeader,
-  SidebarContent,
+  SidebarContent as SidebarContentWrapper,
   SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
@@ -28,43 +28,43 @@ export default function SidebarContentComponent() {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent className="p-0">
+      <SidebarContentWrapper className="p-0">
         <SidebarMenu className="p-2">
           <SidebarMenuItem>
-            <Link href="/dashboard" legacyBehavior passHref>
-              <SidebarMenuButton isActive={isActive('/dashboard')} tooltip={{ children: 'Dashboard' }}>
-                <LayoutDashboard />
-                Dashboard
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton asChild isActive={isActive('/dashboard')} tooltip={{ children: 'Dashboard' }}>
+                <Link href="/dashboard">
+                    <LayoutDashboard />
+                    Dashboard
+                </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/dashboard/profile" legacyBehavior passHref>
-              <SidebarMenuButton isActive={isActive('/dashboard/profile')} tooltip={{ children: 'Profile' }}>
-                <User />
-                Profile
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton asChild isActive={isActive('/dashboard/profile')} tooltip={{ children: 'Profile' }}>
+                <Link href="/dashboard/profile">
+                    <User />
+                    Profile
+                </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/dashboard/settings" legacyBehavior passHref>
-              <SidebarMenuButton isActive={isActive('/dashboard/settings')} tooltip={{ children: 'Settings' }}>
-                <Settings />
-                Settings
-              </SidebarMenuButton>
-            </Link>
+             <SidebarMenuButton asChild isActive={isActive('/dashboard/settings')} tooltip={{ children: 'Settings' }}>
+                <Link href="/dashboard/settings">
+                    <Settings />
+                    Settings
+                </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarContent>
+      </SidebarContentWrapper>
       <SidebarFooter className='p-2'>
         <SidebarMenu>
             <SidebarMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                    <SidebarMenuButton tooltip={{ children: 'Logout' }}>
+                <SidebarMenuButton asChild tooltip={{ children: 'Logout' }}>
+                    <Link href="/">
                         <LogOut />
                         Logout
-                    </SidebarMenuButton>
-                </Link>
+                    </Link>
+                </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
