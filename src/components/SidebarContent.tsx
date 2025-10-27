@@ -10,10 +10,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Landmark, LayoutDashboard, User, Settings, LogOut } from 'lucide-react';
+import { Landmark, LayoutDashboard, User, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
+import AdminDialog from './AdminDialog';
 
 export default function SidebarContentComponent() {
   const pathname = usePathname();
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
 
@@ -59,6 +62,12 @@ export default function SidebarContentComponent() {
       <SidebarFooter className='p-2'>
         <SidebarMenu>
             <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => setIsAdminDialogOpen(true)} tooltip={{ children: 'Admin Panel' }}>
+                    <ShieldAlert />
+                    Admin Panel
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip={{ children: 'Logout' }}>
                     <Link href="/">
                         <LogOut />
@@ -68,6 +77,7 @@ export default function SidebarContentComponent() {
             </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      <AdminDialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen} />
     </>
   );
 }

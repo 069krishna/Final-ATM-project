@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import type { Transaction } from '@/types';
 
@@ -10,6 +10,9 @@ interface AccountContextType {
   deposit: (amount: number) => boolean;
   withdraw: (amount: number) => boolean;
   transfer: (amount: number, recipient: string) => boolean;
+  resetBalance: () => void;
+  setBalance: (amount: number) => void;
+  resetTransactions: () => void;
 }
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
@@ -22,11 +25,13 @@ export const useAccount = () => {
   return context;
 };
 
+const INITIAL_BALANCE = 25000;
+const MIN_BALANCE = 10000;
+
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
-  const [balance, setBalance] = useState(25000);
+  const [balance, setBalanceState] = useState(INITIAL_BALANCE);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const minBalance = 10000;
 
   const addTransaction = (transaction: Omit<Transaction, 'id' | 'date'>) => {
     const newTransaction: Transaction = {
@@ -38,7 +43,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deposit = (amount: number) => {
-    setBalance(prev => prev + amount);
+    setBalanceState(prev => prev + amount);
     addTransaction({ type: 'Deposit', amount, description: 'Funds added to account' });
     toast({
       title: "Success",
@@ -49,15 +54,15 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const withdraw = (amount: number) => {
-    if (balance - amount < minBalance) {
+    if (balance - amount < MIN_BALANCE) {
       toast({
         variant: 'destructive',
         title: "Transaction Failed",
-        description: `Your balance cannot go below the minimum of ₹${minBalance.toLocaleString('en-IN')}.`,
+        description: `Your balance cannot go below the minimum of ₹${MIN_BALANCE.toLocaleString('en-IN')}.`,
       });
       return false;
     }
-    setBalance(prev => prev - amount);
+    setBalanceState(prev => prev - amount);
     addTransaction({ type: 'Withdrawal', amount, description: 'Funds withdrawn' });
     toast({
       title: "Success",
@@ -67,15 +72,15 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const transfer = (amount: number, recipient: string) => {
-    if (balance - amount < minBalance) {
+    if (balance - amount < MIN_BALANCE) {
       toast({
         variant: 'destructive',
         title: "Transaction Failed",
-        description: `Your balance cannot go below the minimum of ₹${minBalance.toLocaleString('en-IN')}.`,
+        description: `Your balance cannot go below the minimum of ₹${MIN_BALANCE.toLocaleString('en-IN')}.`,
       });
       return false;
     }
-    setBalance(prev => prev - amount);
+    setBalanceState(prev => prev - amount);
     addTransaction({ type: 'Transfer', amount, description: `Transferred to ${recipient}` });
     toast({
       title: "Success",
@@ -84,7 +89,31 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const value = { balance, transactions, deposit, withdraw, transfer };
+  const resetBalance = () => {
+    setBalanceState(INITIAL_BALANCE);
+    toast({
+      title: 'Admin Action',
+      description: 'Account balance has been reset.',
+    });
+  };
+
+  const setBalance = (amount: number) => {
+    setBalanceState(amount);
+     toast({
+      title: 'Admin Action',
+      description: `Account balance set to ₹${amount.toLocaleString('en-IN')}.`,
+    });
+  };
+
+  const resetTransactions = () => {
+    setTransactions([]);
+    toast({
+      title: 'Admin Action',
+      description: 'Transaction history has been cleared.',
+    });
+  }
+
+  const value = { balance, transactions, deposit, withdraw, transfer, resetBalance, setBalance, resetTransactions };
 
   return <AccountContext.Provider value={value}>{children}</AccountContext.Provider>;
 };
