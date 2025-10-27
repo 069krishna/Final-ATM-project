@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import { useState } from 'react';
 import { TransactionType } from '@/types';
 import TransactionDialog from '@/components/TransactionDialog';
+import { AccountProvider } from '@/context/AccountContext';
 
 export default function DashboardLayout({
   children,
@@ -29,23 +30,25 @@ export default function DashboardLayout({
   };
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarContent />
-      </Sidebar>
-      <SidebarInset>
-        <Header onAction={handleOpenDialog} />
-        <main className="flex-grow p-4 sm:p-6 lg:p-8">
-            {children}
-        </main>
-      </SidebarInset>
-      {dialogType && (
-        <TransactionDialog
-          type={dialogType}
-          open={dialogOpen}
-          onOpenChange={handleDialogChange}
-        />
-      )}
-    </SidebarProvider>
+    <AccountProvider>
+      <SidebarProvider>
+        <Sidebar>
+          <SidebarContent />
+        </Sidebar>
+        <SidebarInset>
+          <Header onAction={handleOpenDialog} />
+          <main className="flex-grow p-4 sm:p-6 lg:p-8">
+              {children}
+          </main>
+        </SidebarInset>
+        {dialogType && (
+          <TransactionDialog
+            type={dialogType}
+            open={dialogOpen}
+            onOpenChange={handleDialogChange}
+          />
+        )}
+      </SidebarProvider>
+    </AccountProvider>
   );
 }
