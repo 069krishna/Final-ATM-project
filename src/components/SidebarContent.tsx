@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Landmark, LayoutDashboard, User, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { Landmark, LayoutDashboard, User, Settings, LogOut, ShieldAlert, Bot } from 'lucide-react';
 import { useState } from 'react';
 import AdminDialog from './AdminDialog';
 
@@ -38,6 +38,14 @@ export default function SidebarContentComponent() {
                 <Link href="/dashboard">
                     <LayoutDashboard />
                     Dashboard
+                </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/dashboard/assistant')} tooltip={{ children: 'AI Assistant' }}>
+                <Link href="/dashboard/assistant">
+                    <Bot />
+                    AI Assistant
                 </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
